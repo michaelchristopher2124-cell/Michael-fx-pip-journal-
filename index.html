@@ -1,1 +1,743 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Michael FX Journal - Professional 1000-Day Trading Journal">
+    
+    <title>Michael FX Journal</title>
+    
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWljaGFlbCBGWCBKb3VybmFsIiwic2hvcnRfbmFtZSI6Ik1GIFhKIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwZjE3MmEiLCJ0aGVtZV9jb2xvciI6IiMwZjE3MmEifQ==">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f172a'/%3E%3Ctext x='50' y='65' font-size='45' text-anchor='middle' fill='%2306b6d4'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #1e293b;
+            --bg-glass: rgba(30, 41, 59, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: rgba(6, 182, 212, 0.3);
+            --accent-gold: #f59e0b;
+            --accent-gold-glow: rgba(245, 158, 11, 0.3);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f97316;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: -1; overflow: hidden;
+        }
+        .ambient-bg::before {
+            content: ''; position: absolute; top: -50%; right: -10%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--accent-cyan-glow) 0%, transparent 70%);
+            filter: blur(80px); animation: float 20s infinite ease-in-out;
+        }
+        .ambient-bg::after {
+            content: ''; position: absolute; bottom: -30%; left: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, var(--accent-gold-glow) 0%, transparent 70%);
+            filter: blur(80px); animation: float 25s infinite ease-in-out reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -30px) scale(1.1); }
+        }
+        
+        .container { max-width: 100%; padding: 20px; padding-bottom: 100px; }
+        
+        .header { text-align: center; margin-bottom: 24px; padding-top: 10px; }
+        .header h1 {
+            font-size: 1.75rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em; margin-bottom: 4px;
+        }
+        .header p { color: var(--text-secondary); font-size: 0.875rem; }
+        
+        .dashboard {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;
+        }
+        @media (min-width: 768px) { .dashboard { grid-template-columns: repeat(4, 1fr); } }
+        
+        .metric-card {
+            background: var(--bg-glass); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass); border-radius: 16px;
+            padding: 16px; text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .metric-value { font-size: 1.5rem; font-weight: 700; color: var(--accent-cyan); }
+        .metric-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+        
+        .actions-bar {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; justify-content: center;
+        }
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 12px;
+            font-family: inherit; font-weight: 600; font-size: 0.875rem;
+            cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-success { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%); color: white; }
+        .btn-danger:disabled, .btn-danger.locked {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            cursor: not-allowed; opacity: 0.6; position: relative;
+        }
+        .btn-danger.locked::after {
+            content: '🔒'; position: absolute; right: 8px; top: 50%;
+            transform: translateY(-50%); font-size: 0.75rem;
+        }
+        .btn-warning { background: linear-gradient(135deg, var(--warning) 0%, #ea580c 100%); color: white; }
+        .btn-premium {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+            color: #0f172a; font-weight: 700; animation: pulse-gold 2s infinite;
+        }
+        .btn-premium.unlocked {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white; animation: none;
+        }
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+        
+        .table-container {
+            background: var(--bg-glass); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass); border-radius: 20px;
+            overflow-x: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            -webkit-overflow-scrolling: touch; position: relative;
+        }
+        
+        .virtual-scroll-container {
+            height: 600px; overflow-y: auto; position: relative;
+        }
+        
+        .table-wrapper { min-width: 1400px; position: relative; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        
+        thead th {
+            color: var(--text-secondary); font-weight: 600; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px;
+            text-align: left; white-space: nowrap;
+            position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); z-index: 10;
+        }
+        
+        tbody tr {
+            background: rgba(30, 41, 59, 0.5); height: 60px;
+            transition: all 0.2s;
+        }
+        tbody tr:hover { background: rgba(30, 41, 59, 0.8); }
+        
+        tbody td {
+            padding: 12px 16px; border-top: 1px solid var(--border-glass);
+            border-bottom: 1px solid var(--border-glass); white-space: nowrap;
+        }
+        tbody td:first-child {
+            border-left: 1px solid var(--border-glass); border-radius: 12px 0 0 12px;
+            font-weight: 700; color: var(--accent-cyan);
+        }
+        tbody td:last-child { border-right: 1px solid var(--border-glass); border-radius: 0 12px 12px 0; }
+        
+        input, select {
+            background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass);
+            border-radius: 8px; color: var(--text-primary); padding: 8px 12px;
+            font-family: inherit; font-size: 0.875rem; width: 100%; min-width: 100px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-cyan); }
+        
+        input[type="checkbox"] { width: 20px; height: 20px; min-width: 20px; accent-color: var(--accent-cyan); }
+        input[type="number"] { min-width: 80px; }
+        input[type="time"] { min-width: 100px; }
+        
+        .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.875rem; }
+        
+        .locked-row { opacity: 0.4; pointer-events: none; }
+        .locked-row.active-lock {
+            opacity: 1; pointer-events: auto; cursor: pointer;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .locked-row.active-lock td:last-child::after {
+            content: '🔓 Click to Unlock'; margin-left: 10px;
+            color: var(--accent-gold); font-size: 0.75rem; font-weight: 600;
+            background: rgba(245, 158, 11, 0.2); padding: 4px 12px; border-radius: 20px;
+        }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+            border: 1px solid var(--border-glass); border-radius: 24px;
+            padding: 32px; max-width: 480px; width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative; overflow: hidden;
+        }
+        .modal::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-gold));
+        }
+        .modal-header { text-align: center; margin-bottom: 24px; }
+        .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+        .modal-subtitle { color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; }
+        
+        .payment-box {
+            background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass);
+            border-radius: 16px; padding: 20px; margin: 20px 0;
+        }
+        .payment-title {
+            font-weight: 600; margin-bottom: 16px; color: var(--accent-gold);
+            font-size: 0.875rem; text-align: center;
+        }
+        .address-block { margin-bottom: 16px; }
+        .address-label { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .address-value {
+            background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace;
+            font-size: 0.8125rem; word-break: break-all; cursor: pointer; user-select: all;
+        }
+        .address-value.copied::after {
+            content: 'Copied!'; position: absolute; top: -30px; left: 50%;
+            transform: translateX(-50%); background: var(--success); color: white;
+            padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+        }
+        
+        .whatsapp-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white; text-decoration: none; border-radius: 12px;
+            font-weight: 700; margin: 16px 0; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+        }
+        
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-glass), transparent); margin: 24px 0; }
+        
+        .pin-section { display: flex; flex-direction: column; gap: 12px; }
+        .pin-input {
+            text-align: center; font-size: 1.125rem; letter-spacing: 0.1em;
+            padding: 16px; background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border-glass); border-radius: 12px;
+            color: var(--text-primary); font-weight: 600;
+        }
+        .btn-unlock {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, #0891b2 100%);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+        }
+        .close-modal {
+            position: absolute; top: 16px; right: 16px; background: none; border: none;
+            color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+        }
+        
+        .toast {
+            position: fixed; bottom: 24px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-glass); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass); padding: 16px 24px;
+            border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; gap: 12px; z-index: 2000;
+            opacity: 0; transition: all 0.3s;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        
+        ::-webkit-scrollbar { height: 8px; width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-secondary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+        
+        @media (max-width: 640px) {
+            .container { padding: 12px; }
+            .header h1 { font-size: 1.5rem; }
+            .btn { padding: 10px 16px; font-size: 0.8125rem; }
+            .modal { padding: 24px 20px; }
+            .virtual-scroll-container { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+    
+    <div class="container">
+        <header class="header">
+            <h1>Michael FX Journal</h1>
+            <p>Professional 1000-Day Trading Log</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="metric-card">
+                <div class="metric-value" id="totalTrades">0</div>
+                <div class="metric-label">Total Trades</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="totalWins" style="color: var(--success);">0</div>
+                <div class="metric-label">Total Wins</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="totalLosses" style="color: var(--danger);">0</div>
+                <div class="metric-label">Total Losses</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="winRate" style="color: var(--accent-gold);">0%</div>
+                <div class="metric-label">Win Rate</div>
+            </div>
+        </div>
+        
+        <div class="actions-bar">
+            <button class="btn btn-success" onclick="saveJournal()">💾 Save Journal</button>
+            <button class="btn btn-danger locked" id="clearBtn" onclick="handleClearAttempt()">🗑️ Clear All</button>
+            <button class="btn btn-warning" onclick="exportCSV()">📊 Export CSV</button>
+            <button class="btn btn-premium" id="unlockBtn" onclick="showPremiumModal()">🔓 Unlock Premium</button>
+        </div>
+        
+        <div class="table-container">
+            <div class="virtual-scroll-container" id="scrollContainer">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Pair</th>
+                                <th>Checklist</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Entry</th>
+                                <th>SL</th>
+                                <th>TP</th>
+                                <th>Risk %</th>
+                                <th>Win</th>
+                                <th>Loss</th>
+                                <th>Lot Size</th>
+                                <th>Pips</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="premiumModal">
+        <div class="modal">
+            <button class="close-modal" onclick="closePremiumModal()">×</button>
+            <div class="modal-header">
+                <div class="modal-title">🔒 Premium Locked</div>
+                <div class="modal-subtitle">You have reached the free 5-trade limit. Upgrade to the full 1,000-Day Michael FX Journal for just $3.</div>
+            </div>
+            
+            <div class="payment-box">
+                <div class="payment-title">To unlock instantly, send exactly $3 (USDT) to either of these addresses:</div>
+                <div class="address-block">
+                    <div class="address-label">🔵 USDT (TRC20):</div>
+                    <div class="address-value" onclick="copyAddress(this)">TUzxdv7uv4DXZkDaYeSDRz4NTfnXQ92uim</div>
+                </div>
+                <div class="address-block">
+                    <div class="address-label">🟣 USDT (ERC20):</div>
+                    <div class="address-value" onclick="copyAddress(this)">0x33a945940D4f3FC0909dB362f1470331c0317e0D</div>
+                </div>
+            </div>
+            
+            <a href="https://wa.me/qr/3CKSVZKTJMRBM1" target="_blank" class="whatsapp-btn">📱 Send Receipt on WhatsApp</a>
+            
+            <div class="divider"></div>
+            
+            <div class="pin-section">
+                <input type="text" class="pin-input" id="pinInput" placeholder="Enter Premium PIN" maxlength="20">
+                <button class="btn-unlock" onclick="verifyPIN()">🔓 Unlock Journal</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">Operation successful</span>
+    </div>
+
+    <script>
+        // Configuration
+        const TOTAL_ROWS = 1000;
+        const FREE_ROWS = 5;
+        const CORRECT_PIN = 'KILLZONE2026';
+        const STORAGE_KEY = 'michael_fx_journal_data_v2';
+        const PREMIUM_KEY = 'michael_fx_journal_premium_v2';
+        const ROW_HEIGHT = 68;
+        const VISIBLE_BUFFER = 5;
+        
+        // State
+        let isPremium = false;
+        let journalData = {};
+        let visibleStart = 0;
+        let visibleEnd = 0;
+        let scrollContainer = null;
+        let tableBody = null;
+        
+        // Currency Pairs
+        const PAIRS = {
+            'Major Pairs': ['GBPUSD', 'EURUSD'],
+            'Forex': ['XAUUSD', 'USDJPY', 'GBPJPY', 'AUDUSD', 'USDCAD'],
+            'Indices': ['US30', 'NAS100', 'SPX500', 'GER40', 'UK100'],
+            'Synthetics': ['Volatility 75', 'Volatility 100', 'Boom 1000', 'Crash 1000', 'Step Index', 'Jump 100'],
+            'Futures': ['ES', 'NQ', 'YM', 'CL']
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            scrollContainer = document.getElementById('scrollContainer');
+            tableBody = document.getElementById('tableBody');
+            
+            loadPremiumStatus();
+            loadData();
+            setupVirtualScroll();
+            setupEventDelegation();
+            updateVisibleRows();
+            updateMetrics();
+        });
+        
+        function setupVirtualScroll() {
+            const totalHeight = TOTAL_ROWS * ROW_HEIGHT;
+            tableBody.style.height = totalHeight + 'px';
+            scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+            calculateVisibleRange();
+        }
+        
+        function handleScroll() {
+            requestAnimationFrame(() => {
+                calculateVisibleRange();
+                updateVisibleRows();
+            });
+        }
+        
+        function calculateVisibleRange() {
+            const scrollTop = scrollContainer.scrollTop;
+            const containerHeight = scrollContainer.clientHeight;
+            visibleStart = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - VISIBLE_BUFFER);
+            visibleEnd = Math.min(TOTAL_ROWS, Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + VISIBLE_BUFFER);
+        }
+        
+        function updateVisibleRows() {
+            tableBody.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            
+            if (visibleStart > 0) {
+                const topSpacer = document.createElement('tr');
+                topSpacer.style.height = (visibleStart * ROW_HEIGHT) + 'px';
+                fragment.appendChild(topSpacer);
+            }
+            
+            for (let i = visibleStart; i < visibleEnd; i++) {
+                fragment.appendChild(createRowElement(i + 1));
+            }
+            
+            if (visibleEnd < TOTAL_ROWS) {
+                const bottomSpacer = document.createElement('tr');
+                bottomSpacer.style.height = ((TOTAL_ROWS - visibleEnd) * ROW_HEIGHT) + 'px';
+                fragment.appendChild(bottomSpacer);
+            }
+            
+            tableBody.appendChild(fragment);
+        }
+        
+        function createRowElement(day) {
+            const tr = document.createElement('tr');
+            tr.dataset.day = day;
+            tr.style.height = ROW_HEIGHT + 'px';
+            
+            const isLocked = !isPremium && day > FREE_ROWS;
+            if (isLocked) {
+                tr.classList.add('locked-row');
+                if (day === FREE_ROWS + 1) {
+                    tr.classList.add('active-lock');
+                    tr.addEventListener('click', function(e) {
+                        if (e.target === tr || e.target.tagName === 'TD') showPremiumModal();
+                    });
+                }
+            }
+            
+            const data = journalData[day] || {};
+            const disabled = isLocked ? 'disabled' : '';
+            const cells = [];
+            
+            cells.push(`<td>${day}</td>`);
+            
+            if (isLocked) {
+                cells.push(`<td><select disabled><option>Select Pair...</option></select></td>`);
+            } else {
+                let options = '<option value="">Select Pair...</option>';
+                for (const [group, pairs] of Object.entries(PAIRS)) {
+                    options += `<optgroup label="${group}">`;
+                    pairs.forEach(pair => {
+                        const selected = data.pair === pair ? 'selected' : '';
+                        options += `<option value="${pair}" ${selected}>${pair}</option>`;
+                    });
+                    options += '</optgroup>';
+                }
+                cells.push(`<td><select data-field="pair">${options}</select></td>`);
+            }
+            
+            const checklistChecked = data.checklist ? 'checked' : '';
+            cells.push(`<td><label class="checkbox-label"><input type="checkbox" data-field="checklist" ${checklistChecked} ${disabled}>Followed Rules?</label></td>`);
+            
+            cells.push(`<td><input type="time" data-field="timeIn" value="${data.timeIn || ''}" ${disabled}></td>`);
+            cells.push(`<td><input type="time" data-field="timeOut" value="${data.timeOut || ''}" ${disabled}></td>`);
+            cells.push(`<td><input type="number" step="0.00001" placeholder="0.00000" data-field="entry" value="${data.entry || ''}" ${disabled}></td>`);
+            cells.push(`<td><input type="number" step="0.00001" placeholder="0.00000" data-field="sl" value="${data.sl || ''}" ${disabled}></td>`);
+            cells.push(`<td><input type="number" step="0.00001" placeholder="0.00000" data-field="tp" value="${data.tp || ''}" ${disabled}></td>`);
+            cells.push(`<td><input type="number" step="0.01" min="0" max="100" placeholder="%" data-field="risk" value="${data.risk || ''}" ${disabled}></td>`);
+            
+            const winChecked = data.win ? 'checked' : '';
+            const lossChecked = data.loss ? 'checked' : '';
+            cells.push(`<td><input type="checkbox" data-field="win" ${winChecked} ${disabled}></td>`);
+            cells.push(`<td><input type="checkbox" data-field="loss" ${lossChecked} ${disabled}></td>`);
+            
+            cells.push(`<td><input type="number" step="0.01" min="0.01" placeholder="0.00" data-field="lotSize" value="${data.lotSize || ''}" ${disabled}></td>`);
+            cells.push(`<td><input type="number" step="0.1" placeholder="0.0" data-field="pips" value="${data.pips || ''}" ${disabled}></td>`);
+            
+            tr.innerHTML = cells.join('');
+            return tr;
+        }
+        
+        function setupEventDelegation() {
+            tableBody.addEventListener('change', function(e) {
+                const target = e.target;
+                if (!target.dataset.field) return;
+                
+                const row = target.closest('tr');
+                if (!row) return;
+                const day = parseInt(row.dataset.day);
+                
+                if (target.dataset.field === 'win' && target.checked) {
+                    const lossBox = row.querySelector('[data-field="loss"]');
+                    if (lossBox) {
+                        lossBox.checked = false;
+                        saveField(day, 'loss', false);
+                    }
+                    saveField(day, 'win', true);
+                    updateMetrics();
+                    return;
+                }
+                
+                if (target.dataset.field === 'loss' && target.checked) {
+                    const winBox = row.querySelector('[data-field="win"]');
+                    if (winBox) {
+                        winBox.checked = false;
+                        saveField(day, 'win', false);
+                    }
+                    saveField(day, 'loss', true);
+                    updateMetrics();
+                    return;
+                }
+                
+                const value = target.type === 'checkbox' ? target.checked : target.value;
+                saveField(day, target.dataset.field, value);
+            });
+            
+            let saveTimeout;
+            tableBody.addEventListener('input', function(e) {
+                if (!e.target.dataset.field) return;
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    const row = e.target.closest('tr');
+                    if (!row) return;
+                    saveField(parseInt(row.dataset.day), e.target.dataset.field, e.target.value);
+                }, 300);
+            });
+        }
+        
+        function saveField(day, field, value) {
+            if (!journalData[day]) journalData[day] = {};
+            journalData[day][field] = value;
+        }
+        
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(journalData));
+                showToast('💾 Saved', 'success');
+            } catch (e) {
+                showToast('❌ Save failed', 'error');
+            }
+        }
+        
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) journalData = JSON.parse(saved);
+            } catch (e) {
+                journalData = {};
+            }
+        }
+        
+        function loadPremiumStatus() {
+            isPremium = localStorage.getItem(PREMIUM_KEY) === 'true';
+            updatePremiumUI();
+        }
+        
+        function updatePremiumUI() {
+            const unlockBtn = document.getElementById('unlockBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            if (isPremium) {
+                unlockBtn.classList.add('unlocked');
+                unlockBtn.innerHTML = '✅ Premium Active';
+                unlockBtn.onclick = null;
+                
+                clearBtn.classList.remove('locked');
+                clearBtn.disabled = false;
+                clearBtn.innerHTML = '🗑️ Clear All';
+                clearBtn.onclick = clearAllData;
+            } else {
+                unlockBtn.classList.remove('unlocked');
+                unlockBtn.innerHTML = '🔓 Unlock Premium';
+                unlockBtn.onclick = showPremiumModal;
+                
+                clearBtn.classList.add('locked');
+                clearBtn.disabled = false;
+                clearBtn.innerHTML = '🗑️ Clear All <span style="margin-left:4px">🔒</span>';
+                clearBtn.onclick = handleClearAttempt;
+            }
+        }
+        
+        function handleClearAttempt() {
+            if (!isPremium) {
+                showPremiumModal();
+                return;
+            }
+            clearAllData();
+        }
+        
+        function clearAllData() {
+            if (!confirm('⚠️ Are you sure you want to clear ALL trade data? This cannot be undone.')) return;
+            
+            journalData = {};
+            localStorage.removeItem(STORAGE_KEY);
+            updateVisibleRows();
+            updateMetrics();
+            showToast('🗑️ All Data Cleared', 'success');
+        }
+        
+        function updateMetrics() {
+            let trades = 0, wins = 0, losses = 0;
+            for (const data of Object.values(journalData)) {
+                if (data.win || data.loss) {
+                    trades++;
+                    if (data.win) wins++;
+                    if (data.loss) losses++;
+                }
+            }
+            const winRate = trades > 0 ? ((wins / trades) * 100).toFixed(1) : 0;
+            document.getElementById('totalTrades').textContent = trades;
+            document.getElementById('totalWins').textContent = wins;
+            document.getElementById('totalLosses').textContent = losses;
+            document.getElementById('winRate').textContent = winRate + '%';
+        }
+        
+        function saveJournal() {
+            saveToStorage();
+        }
+        
+        function exportCSV() {
+            let csv = 'Day,Pair,Followed Rules,Time In,Time Out,Entry,SL,TP,Risk %,Win,Loss,Lot Size,Pips\n';
+            for (let i = 1; i <= TOTAL_ROWS; i++) {
+                const data = journalData[i] || {};
+                csv += [
+                    i, data.pair || '', data.checklist ? 'Yes' : 'No',
+                    data.timeIn || '', data.timeOut || '', data.entry || '',
+                    data.sl || '', data.tp || '', data.risk || '',
+                    data.win ? 'Yes' : 'No', data.loss ? 'Yes' : 'No',
+                    data.lotSize || '', data.pips || ''
+                ].join(',') + '\n';
+            }
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Michael_FX_Journal_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📊 Exported', 'success');
+        }
+        
+        function showPremiumModal() {
+            if (isPremium) return;
+            document.getElementById('premiumModal').classList.add('active');
+        }
+        
+        function closePremiumModal() {
+            document.getElementById('premiumModal').classList.remove('active');
+            document.getElementById('pinInput').value = '';
+        }
+        
+        function copyAddress(el) {
+            navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 2000);
+            });
+        }
+        
+        function verifyPIN() {
+            const input = document.getElementById('pinInput').value.trim();
+            if (input === CORRECT_PIN) {
+                localStorage.setItem(PREMIUM_KEY, 'true');
+                isPremium = true;
+                updatePremiumUI();
+                updateVisibleRows();
+                closePremiumModal();
+                showToast('✅ Premium Unlocked!', 'success');
+            } else {
+                showToast('❌ Invalid PIN', 'error');
+            }
+        }
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastIcon').textContent = type === 'success' ? '✅' : '❌';
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        document.getElementById('premiumModal').addEventListener('click', function(e) {
+            if (e.target === this) closePremiumModal();
+        });
+        
+        document.getElementById('pinInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyPIN();
+        });
+        
+        setInterval(() => {
+            if (Object.keys(journalData).length > 0) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(journalData));
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
